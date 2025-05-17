@@ -42,6 +42,8 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
+                echo "minikube starting..."
+                sh "minikube start"
 
                 echo "Deploying application to Kubernetes..."
                 sh "kubectl apply -f kubernetes/webapp-deployment.yml"
