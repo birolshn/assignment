@@ -26,7 +26,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
 
-                sh "/usr/local/bin/docker build -t ${APP_IMAGE} ."
+                sh "docker buildx build --platform linux/arm64 -t ${APP_IMAGE} --load ."
 
             }
         }
