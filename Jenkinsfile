@@ -10,7 +10,7 @@ pipeline {
         stage('Pull the project from GitHub') {
             steps {
                 echo "Pulling the project from GitHub..."
-                git branch: 'jenkins-kubernetes-version', url: 'https://github.com/birolshn/assignment.git'
+                git branch: 'main', url: 'https://github.com/birolshn/assignment.git'
             }
         }        
 
