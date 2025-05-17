@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::body})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicles</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+<h1>VEHICLES</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <td colspan="5">
+            <button class="btn btn-primary add-vehicle" style="width: 100%">Add</button>
+        </td>
+    </tr>
+    <tr>
+        <th>Brand</th>
+        <th>Model</th>
+        <th>Color</th>
+        <th>Type</th>
+        <th>Operations</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="vehicle: ${vehicles}">
+        <td th:text="${vehicle.brand}"></td>
+        <td th:text="${vehicle.model}"></td>
+        <td th:text="${vehicle.color}"></td>
+        <td th:text="${vehicle.type}"></td>
+        <td>
+            <button class="btn btn-warning update-vehicle"
+                    th:attr="data-vehicle-id=${vehicle.id},
+                    data-vehicle-brand=${vehicle.brand},
+                    data-vehicle-model=${vehicle.model},
+                    data-vehicle-color=${vehicle.color},
+                    data-vehicle-type=${vehicle.type}">Update</button>
+            <button class="btn btn-danger delete-vehicle"
+                    th:attr="data-vehicle-id=${vehicle.id},
+                    data-vehicle-brand=${vehicle.brand},
+                    data-vehicle-model=${vehicle.model}">Delete</button>
+            <button class="btn btn-primary assign-vehicle"
+                    th:attr="data-vehicle-id=${vehicle.id},
+                    data-vehicle-brand=${vehicle.brand}">Assign</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script th:inline="javascript">
+
+    $('.add-vehicle').click(function() {
+        Swal.fire({
+            title: 'Add Vehicle',
+            html:
+                '<input id="brand" class="swal2-input" placeholder="Brand">' +
+                '<input id="model" class="swal2-input" placeholder="Model">' +
+                '<input id="color" class="swal2-input" placeholder="Color">' +
+                '<input id="type" class="swal2-input" placeholder="Type">',
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            cancelButtonText: 'Close',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                const brand = $('#brand').val();
+                const model = $('#model').val();
+                const color = $('#color').val();
+                const type = $('#type').val();
+
+                return $.ajax({
+                    url: '/vehicles/add',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify({ brand, model, color, type }),
+                    success: function(response) {
+                        location.reload();
+                    },
+                });
+            },
+        })
+    });
+
+    $('.delete-vehicle').click(function() {
+        var vehicleBrand = $(this).data('vehicle-brand');
+        var vehicleModel = $(this).data('vehicle-model');
+        var vehicleId = $(this).data('vehicle-id');
+        Swal.fire({
+            title: 'Delete Vehicle',
+            html:
+                '<input class="form-control" type="text" value="' + vehicleBrand + '" disabled><br>' +
+                '<input class="form-control" type="text" value="' + vehicleModel + '" disabled>',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Close',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+                $.ajax({
+                    url: '/vehicles/delete',
+                    method: 'DELETE',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({ id: vehicleId }),
+                    success: function(response) {
+                        location.reload();
+                    },
+                });
+            },
+        });
+    });
+
+    $('.update-vehicle').click(function() {
+        var vehicleBrand = $(this).data('vehicle-brand');
+        var vehicleModel = $(this).data('vehicle-model');
+        var vehicleColor = $(this).data('vehicle-color');
+        var vehicleType = $(this).data('vehicle-type');
+        var id = $(this).data('vehicle-id');
+        Swal.fire({
+            title: 'Update Vehicle',
+            html:
+                '<input id="brand" class="swal2-input" type="text" value="' + vehicleBrand + '"><br>' +
+                '<input id="model" class="swal2-input" type="text" value="' + vehicleModel + '"><br>' +
+                '<input id="color" class="swal2-input" type="text" value="' + vehicleColor + '"><br>' +
+                '<input id="type" class="swal2-input" type="text" value="' + vehicleType + '"><br>',
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            cancelButtonText: 'Close',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+                const brand = $('#brand').val();
+                const model = $('#model').val();
+                const color = $('#color').val();
+                const type = $('#type').val();
+                $.ajax({
+                    url: '/vehicles/update',
+                    method: 'PUT',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({ id, brand, model, color, type }),
+                    success: function(response) {
+                        location.reload();
+                    },
+                });
+            },
+        });
+    });
+
+    var driverList = /*[[ ${drivers} ]]*/ [];
+    $('.assign-vehicle').click(function() {
+
+        var vehicleBrand = $(this).data('vehicle-brand');
+        var vehicleId = $(this).data('vehicle-id');
+
+        var options = '';
+
+        for (var i = 0; i < driverList.length; i++) {
+            options += '<option value="' + driverList[i].id + '">' + driverList[i].name + '</option>';
+        }
+        Swal.fire({
+            title: 'Assign vehicle',
+            html:
+                '<input id="name" class="form-control" type="text" value="' + vehicleBrand + '" disabled><br>' +
+                '<div class="input-group mb-3">\n' +
+                '  <label class="input-group-text" for="driver">Drivers</label>\n' +
+                '  <select class="form-select" id="driver">' +
+                '    <option selected>Choose...</option>' + options +
+                '  </select>\n' +
+                '</div>'+
+                '<div class="input-group mb-3">\n' +
+                '  <label class="input-group-text" for="inputGroupSelect01">Date</label>\n' +
+                '  <input id="date" type="date" class="form-control"/>' +
+                '  </select>\n' +
+                '</div>' +
+                '<div class="input-group mb-3">\n' +
+                '  <span class="input-group-text" id="inputGroup-sizing-default">Days</span>\n' +
+                '  <input id="day" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">\n' +
+                '</div>',
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            cancelButtonText: 'Close',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+                const driverId = $('#driver').val()
+                const assignDate = $('#date').val()
+                const days = parseInt($('#day').val());
+
+
+                const assignedDateObj = new Date(assignDate);
+                assignedDateObj.setDate(assignedDateObj.getDate() + days);
+                const returnDate = assignedDateObj.toISOString().split('T')[0];
+
+                const data = {
+                    driverId: driverId,
+                    vehicleId: vehicleId,
+                    assignedDate: assignDate,
+                    returnDate: returnDate
+                };
+                $.ajax({
+                    url: '/assignments/add',
+                    method: 'POST',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        window.location.href = '/assignments';
+                    },
+                });
+            },
+
+        });
+    });
+
+</script>
+
+</body>
+</html>

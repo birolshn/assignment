@@ -1,0 +1,217 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::body})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+<h1>DRIVERS</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <td colspan="4">
+            <button class="btn btn-primary add-driver" style="width: 100%">Add</button>
+        </td>
+
+    </tr>
+    <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Phone</th>
+        <th>Operations</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="driver: ${drivers}">
+        <td th:text="${driver.name}"></td>
+        <td th:text="${driver.address}"></td>
+        <td th:text="${driver.phone}"></td>
+        <td>
+            <button class="btn btn-warning update-driver"
+                    th:attr="data-driver-name=${driver.name},
+                    data-driver-address=${driver.address},
+                    data-driver-phone=${driver.phone},
+                    data-driver-id=${driver.id}">Update</button>
+            <button class="btn btn-danger delete-driver"
+                    th:attr="data-driver-name=${driver.name},
+                    data-driver-address=${driver.address},
+                    data-driver-id=${driver.id}">Delete</button>
+            <button class="btn btn-primary assign-driver"
+                    th:attr="data-driver-name=${driver.name},
+                    data-driver-id=${driver.id}">Assign</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script th:inline="javascript">
+
+    $('.add-driver').click(function() {
+        Swal.fire({
+            title: 'Add Driver',
+            html:
+                '<input id="name" class="swal2-input" placeholder="Name">' +
+                '<input id="address" class="swal2-input" placeholder="Address">' +
+                '<input id="phone" class="swal2-input" placeholder="Phone">',
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            cancelButtonText: 'Close',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                const name = $('#name').val();
+                const address = $('#address').val();
+                const phone = $('#phone').val();
+
+                $.ajax({
+                    url: '/drivers/add',
+                    method: 'POST',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({ name, address, phone }),
+                    success: function(response) {
+                        location.reload();
+                    },
+                });
+
+            },
+        });
+    });
+
+    $('.delete-driver').click(function() {
+        var driverName = $(this).data('driver-name');
+        var driverAddress = $(this).data('driver-address');
+        var driverId = $(this).data('driver-id');
+        Swal.fire({
+            title: 'Delete Driver',
+            html:
+                '<input class="form-control" type="text" value="' + driverName + '" disabled><br>' +
+                '<input class="form-control" type="text" value="' + driverAddress + '" disabled>',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Close',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+
+                $.ajax({
+                    url: '/drivers/delete',
+                    method: 'DELETE',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({ id: driverId }),
+                    success: function(response) {
+                        location.reload();
+                    },
+                });
+            },
+
+        });
+    });
+
+    $('.update-driver').click(function() {
+        var driverName = $(this).data('driver-name');
+        var driverAddress = $(this).data('driver-address');
+        var driverPhone = $(this).data('driver-phone');
+        var id = $(this).data('driver-id');
+        Swal.fire({
+            title: 'Update Driver',
+            html:
+                '<input id="name" class="swal2-input" type="text" value="' + driverName + '"><br>' +
+                '<input id="address" class="swal2-input" type="text" value="' + driverAddress + '"><br>' +
+                '<input id="phone" class="swal2-input" type="text" value="' + driverPhone + '"><br>',
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            cancelButtonText: 'Close',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+                const name = $('#name').val();
+                const address = $('#address').val();
+                const phone = $('#phone').val();
+                $.ajax({
+                    url: '/drivers/update',
+                    method: 'PUT',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({ id, name, address, phone }),
+                    success: function(response) {
+                        location.reload();
+                    },
+                });
+            },
+
+        });
+    });
+
+    var vehicleList = /*[[ ${vehicles} ]]*/ [];
+    $('.assign-driver').click(function() {
+
+        var driverName = $(this).data('driver-name');
+        var driverId = $(this).data('driver-id');
+
+        var options = '';
+
+        for (var i = 0; i < vehicleList.length; i++) {
+            options += '<option value="' + vehicleList[i].id + '">' + vehicleList[i].brand + '</option>';
+        }
+        Swal.fire({
+            title: 'Assign Driver',
+            html:
+                '<input id="name" class="form-control" type="text" value="' + driverName + '" disabled><br>' +
+                '<div class="input-group mb-3">\n' +
+                '  <label class="input-group-text" for="vehicle">Vehicles</label>\n' +
+                '  <select class="form-select" id="vehicle">' +
+                '    <option selected>Choose...</option>' + options +
+                '  </select>\n' +
+                '</div>'+
+                '<div class="input-group mb-3">\n' +
+                '  <label class="input-group-text" for="inputGroupSelect01">Date</label>\n' +
+                '  <input id="date" type="date" class="form-control"/>' +
+                '  </select>\n' +
+                '</div>' +
+                '<div class="input-group mb-3">\n' +
+                '  <span class="input-group-text" id="inputGroup-sizing-default">Days</span>\n' +
+                '  <input id="day" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">\n' +
+                '</div>',
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            cancelButtonText: 'Close',
+            showLoaderOnConfirm: true,
+            preConfirm: function() {
+                const vehicleId = $('#vehicle').val();
+                const assignDate = $('#date').val();
+                const days = parseInt($('#day').val());
+
+
+                const assignedDateObj = new Date(assignDate);
+                assignedDateObj.setDate(assignedDateObj.getDate() + days);
+                const returnDate = assignedDateObj.toISOString().split('T')[0];
+
+                const data = {
+                    driverId: driverId,
+                    vehicleId: vehicleId,
+                    assignedDate: assignDate,
+                    returnDate: returnDate
+                };
+                $.ajax({
+                    url: '/assignments/add',
+                    method: 'POST',
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        window.location.href = '/assignments';
+                    },
+                });
+            },
+
+        });
+    });
+
+
+</script>
+
+</body>
+</html>
+
