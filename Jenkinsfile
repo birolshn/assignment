@@ -25,9 +25,11 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-
-                sh "docker buildx build --platform linux/arm64 -t ${APP_IMAGE} --load ."
-
+                sh '''
+                  export PATH=/usr/local/bin:$PATH
+                  docker buildx build --platform linux/arm64 -t ${APP_IMAGE} --load .
+                '''
+                //sh "docker buildx build --platform linux/arm64 -t ${APP_IMAGE} --load ."
             }
         }
 
