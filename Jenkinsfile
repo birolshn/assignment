@@ -50,22 +50,46 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 echo "minikube starting..."
-                sh "minikube start"
+                sh '''
+                  export PATH=/opt/homebrew/bin:$PATH
+                  minikube start
+                '''
+                //sh "minikube start"
 
                 echo "Deploying application to Kubernetes..."
-                sh "kubectl apply -f kubernetes/webapp-deployment.yml"
+                sh '''
+                  export PATH=/opt/homebrew/bin:$PATH
+                  kubectl apply -f kubernetes/webapp-deployment.yml
+                '''
+                //sh "kubectl apply -f kubernetes/webapp-deployment.yml"
 
                 echo "Checking pod status..."
-                sh "kubectl get pods"
+                sh '''
+                  export PATH=/opt/homebrew/bin:$PATH
+                  kubectl get pods
+                '''
+                //sh "kubectl get pods"
 
                 echo "Creating service..."
-                sh "kubectl apply -f kubernetes/webapp-service.yml"
+                sh '''
+                  export PATH=/opt/homebrew/bin:$PATH
+                  kubectl apply -f kubernetes/webapp-service.yml
+                '''
+                //sh "kubectl apply -f kubernetes/webapp-service.yml"
 
                 echo "Checking service status..."
-                sh "kubectl get services"
+                sh '''
+                  export PATH=/opt/homebrew/bin:$PATH
+                  kubectl get services
+                '''
+                //sh "kubectl get services"
 
                 echo "Displaying node information..."
-                sh "kubectl get nodes -o wide"
+                sh '''
+                  export PATH=/opt/homebrew/bin:$PATH
+                  kubectl get nodes -o wide
+                '''
+                //sh "kubectl get nodes -o wide"
 
             }
         }
