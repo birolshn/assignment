@@ -35,9 +35,14 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
+                sh '''
+                  export PATH=/usr/local/bin:$PATH
+                  echo ${DOCKER_HUB_CREDS_PSW} | docker login -u ${DOCKER_HUB_CREDS_USR} --password-stdin
+                  docker push ${APP_IMAGE}
+                '''
 
-                sh "echo ${DOCKER_HUB_CREDS_PSW} | docker login -u ${DOCKER_HUB_CREDS_USR} --password-stdin"
-                sh "docker push ${APP_IMAGE}"
+                //sh "echo ${DOCKER_HUB_CREDS_PSW} | docker login -u ${DOCKER_HUB_CREDS_USR} --password-stdin"
+                //sh "docker push ${APP_IMAGE}"
 
             }
         }
