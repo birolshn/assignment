@@ -51,42 +51,60 @@ pipeline {
             steps {
                 echo "minikube starting..."
                 sh '''
-                  export PATH=/opt/homebrew/bin:$PATH
+                  export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+                  which docker
+                  which minikube
+                  which kubectl
                   minikube start
                 '''
                 //sh "minikube start"
 
                 echo "Deploying application to Kubernetes..."
                 sh '''
-                  export PATH=/opt/homebrew/bin:$PATH
+                  export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+                  which docker
+                  which minikube
+                  which kubectl
                   kubectl apply -f kubernetes/webapp-deployment.yml
                 '''
                 //sh "kubectl apply -f kubernetes/webapp-deployment.yml"
 
                 echo "Checking pod status..."
                 sh '''
-                  export PATH=/opt/homebrew/bin:$PATH
+                  export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+                  which docker
+                  which minikube
+                  which kubectl
                   kubectl get pods
                 '''
                 //sh "kubectl get pods"
 
                 echo "Creating service..."
                 sh '''
-                  export PATH=/opt/homebrew/bin:$PATH
+                  export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+                  which docker
+                  which minikube
+                  which kubectl
                   kubectl apply -f kubernetes/webapp-service.yml
                 '''
                 //sh "kubectl apply -f kubernetes/webapp-service.yml"
 
                 echo "Checking service status..."
                 sh '''
-                  export PATH=/opt/homebrew/bin:$PATH
+                  export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+                  which docker
+                  which minikube
+                  which kubectl
                   kubectl get services
                 '''
                 //sh "kubectl get services"
 
                 echo "Displaying node information..."
                 sh '''
-                  export PATH=/opt/homebrew/bin:$PATH
+                  export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+                  which docker
+                  which minikube
+                  which kubectl
                   kubectl get nodes -o wide
                 '''
                 //sh "kubectl get nodes -o wide"
